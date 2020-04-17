@@ -1,0 +1,3 @@
+判断用户名和密码是否为空的代码如下： private boolean validate(){ String username = userEditText.getText().toString(); if(username.equals("")){ showDialog("用户名称是必填项！"); return false; }String pwd = pwdEditText.getText().toString(); if(pwd.equals("")){ showDialog("用户密码是必填项！"); return false; }return true; } 
+判断密码是否错误的代码如下： try {Connection con = DriverManager.getConnection(dbURL, userName, userPwd); Statement login = con.createStatement(); 9
+ResultSet yhb = login.executeQuery("select 账号,密码 from 用户表 "); while (yhb.next()) { if (username.equals(yhb.getString("账号")) && userpwdmima.equals(yhb.getString("密码"))) { ifdenglu = true; ifdenglu1 = "t"; break; } } else { System.out.println("用户名或密码错误，请重试！！"); ifdenglu1 = "f"; }
