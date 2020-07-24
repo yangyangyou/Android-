@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.MaterialMapper">
+	
+<select id="findCailiao_bh" resultType="String">
+     SELECT DISTINCT  b.cailiao_bh  FROM get_detail AS b 
+     INNER JOIN get_material AS a ON a.get_material_id=b.get_material_id
+     WHERE a.batch_no=#{0} and a.material_no=#{1} and b.is_return='0' and b.cailiao_mc like '%${cailiao_mc}%'
+     ORDER BY cailiao_bh ASC LIMIT 1
+</select>	
+<select id="findMaterialBatch_no" resultType="cn.itcast.ssm.po.MaterialBatchNo">
+      SELECT b.cailiao_mc,b.material_batch_no FROM get_detail AS b 
+      INNER JOIN get_material AS a ON a.get_material_id=b.get_material_id
+      WHERE a.batch_no=#{batch_no} and b.is_return='0'
+</select>
+
+<select id="findMaterial" resultType="cn.itcast.ssm.po.GetDetail">
+      SELECT b.cailiao_mc,b.cailiao_bh,b.unit,b.material_num,b.detail_id,b.get_material_id from get_detail AS b 
+      INNER JOIN get_material AS a ON a.get_material_id=b.get_material_id
+      WHERE a.material_no=#{0} and a.batch_no=#{1} and a.shop_name=#{2} and b.is_return='0' and a.is_approval=1
+</select>
+<update id="updateGet_detail" parameterType="cn.itcast.ssm.po.GetDetail">
+      UPDATE get_detail AS b SET b.provider=#{provider},b.acceptor=#{acceptor},b.get_date=#{get_date},b.remark=#{remark},b.material_batch_no=#{material_batch_no}
+      WHERE b.detail_id=#{detail_id} and b.is_return='0'
+</update>
+<insert id="insertGet_detail" parameterType="cn.itcast.ssm.po.Material">
+      INSERT INTO get_detail(get_material_id,cailiao_mc,cailiao_bh,material_num,provider,acceptor,get_date,remark,unit,is_return,is_recorded)
+      VALUES(#{0},
+      #{1},#{2},#{3},#{4},#{5},#{6},#{7},#{8},'1',0) 
+</insert>
+<select id="findGet_material_id" resultType="Integer">
+SELECT get_material_id FROM get_material WHERE material_no=#{0} and batch_no=#{1} and shop_name=#{2}
+</select>
+
+	<resultMap type="cn.itcast.ssm.po.GetMaterial" id="getMaterial">
+	    <id column="get_material_id" property="get_material_id"/>
+	    <result column="plan_no" property="plan_no"/>
+	    <result column="material_name" property="material_name"/>
+		<result column="client_material_no" property="client_material_no"/>
+		<result column="product_spec" property="product_spec"/>
+		<result column="material_no" property="material_no"/>
+		<result column="shop_name" property="shop_name"/>
+		<result column="apply_people" property="apply_people"/>
+		<result column="apply_date" property="apply_date"/>
+		<result column="approver" property="approver"/>
+		<result column="approver_date" property="approver_date"/>
+		<result column="batch_no" property="batch_no"/>
+		<collection property="getDetails" ofType="cn.itcast.ssm.po.GetDetail">
+			<id column="detail_id" property="detail_id"/>
+			<result column="get_material_id" property="get_material_id"/>
+			<result column="cailiao_mc" property="cailiao_mc"/>
+			<result column="cailiao_bh" property="cailiao_bh"/>
+			<result column="unit" property="unit"/>
+			<result column="material_num" property="material_num"/>
+			<result column="remark" property="remark"/>
+			<result column="provider" property="provider"/>
+			<result column="acceptor" property="acceptor"/>
+			<result column="get_date" property="get_date"/>
+			<result column="material_batch_no" property="material_batch_no"/>
+		</collection>
+	</resultMap>
+	<select id="findNoRecordGetMaterial" resultMap="getMaterial">
+	SELECT 
+		get_material.get_material_id,
+		get_material.plan_no,
+		get_material.batch_no,
+		get_material.material_name,
+		get_material.material_no,
+		get_material.client_material_no,
+		get_material.product_spec,
+		get_material.shop_name,
+		get_material.apply_people,
+		get_material.apply_date,
+		get_material.approver,
+		get_material.approval_date,
+		get_detail.detail_id,
+		get_detail.get_material_id,
+		get_detail.cailiao_mc,
+		get_detail.cailiao_bh,
+		get_detail.unit,
+		get_detail.material_num,
+		get_detail.acceptor,
+		get_detail.provider,
+		get_detail.remark,
+		get_detail.get_date,
+		get_detail.material_batch_no
+	FROM get_material LEFT JOIN get_detail ON get_material.get_material_id=get_detail.get_material_id
+	WHERE get_material.is_got=1 AND get_material.is_recorded = 0 AND get_detail.is_return=0
+</select>
+<update id="updateNoRecordGetMaterial" parameterType="int">
+	UPDATE get_material SET is_recorded=1 WHERE get_material_id=#{0}
+</update>
+
+<resultMap type="cn.itcast.ssm.po.GetDetailsVo" id="getDetails">
+	    <id column="detail_id" property="detail_id"/>
+	    <result column="get_material_id" property="get_material_id"/>
+	    <result column="batch_no" property="batch_no"/>
+		<result column="unit" property="unit"/>
+		<result column="material_num" property="material_num"/>
+		<result column="provider" property="provider"/>
+		<result column="acceptor" property="acceptor"/>
+		<result column="cailiao_mc" property="cailiao_mc"/>
+		<result column="cailiao_bh" property="cailiao_bh"/>
+		<result column="get_date" property="get_date"/>
+		<result column="remark" property="remark"/>
+		<result column="material_batch_no" property="material_batch_no"/>
+		<result column="is_return" property="is_return"/>
+		<result column="material_no" property="material_no"/>
+		<result column="shop_name" property="shop_name"/>
+	</resultMap>
+	<select id="findNoRecordReturnMaterial" resultMap="getDetails">
+	SELECT 
+		get_material.get_material_id,
+		get_material.batch_no,
+		get_material.material_no,
+		get_material.shop_name,
+		get_detail.detail_id,
+		get_detail.get_material_id,
+		get_detail.cailiao_mc,
+		get_detail.cailiao_bh,
+		get_detail.unit,
+		get_detail.material_num,
+		get_detail.material_batch_no,
+		get_detail.acceptor,
+		get_detail.provider,
+		get_detail.get_date,
+		get_detail.remark
+	FROM get_detail INNER JOIN get_material ON get_material.get_material_id=get_detail.get_material_id
+	WHERE get_detail.is_recorded=0 AND get_detail.is_return = 1
+</select>
+<update id="updateNoRecordReturnMaterial" parameterType="int">
+	UPDATE get_detail SET is_recorded=1 WHERE detail_id=#{0}
+</update>
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.GetBanChengMapper">
+	
+	
+  <update id="updateAddNum">
+     UPDATE middle_product SET num=num + #{product_num} WHERE material_no=#{material_no}
+  </update>
+  
+  <update id="updateSubNum">
+     UPDATE middle_product SET num=num - #{product_num} WHERE material_no=#{material_no}
+  </update>
+ 
+  <select id="findFromShopPlan"  resultType="cn.itcast.ssm.po.ShopPlan">
+      SELECT DISTINCT plan_no,client_material_no,material_no, product_spec,material_name FROM shop_plan 
+      WHERE batch_no=#{batch_no} and is_new=1
+  </select> 
+  
+  <select id="findFromShopPlan2"  resultType="cn.itcast.ssm.po.ShopPlan">
+      SELECT DISTINCT plan_no,client_material_no,material_no, product_spec,material_name FROM get_material 
+      WHERE batch_no=#{batch_no} and is_approval=1
+  </select>
+  
+  <insert id="insertProductRecord" parameterType="cn.itcast.ssm.po.ProductRecord">   
+     INSERT product_record(plan_no,client_material_no,material_no,product_mc,batch_no1,batch_no2,
+     product_num,weight,unit,shop1,provider,shop2,acceptor,trans_date,remark,is_return,is_normal,is_recorded)
+     VALUES(#{planNo},#{clientMaterialNo},#{materialNo},#{productMc},#{batchNo1},#{batchNo2},
+     #{productNum},#{weight},#{unit},#{shop1},#{provider},#{shop2},#{acceptor},#{transDate},#{remark},#{isReturn},'1',0)
+  </insert>
+  
+  <select id="findStorehouse" parameterType="string" resultType="cn.itcast.ssm.po.Storehouse">
+     SELECT * FROM storehouse WHERE batch_no=#{batch_no} 
+  </select>
+  
+  <select id="findMiddleProduct" parameterType="string" resultType="cn.itcast.ssm.po.Middleproduct">
+     SELECT * FROM middle_product WHERE material_no=#{material_no} 
+  </select>
+  
+  <update id="updatematerialNum">
+     UPDATE storehouse SET material_num=material_num + #{product_num}
+     WHERE batch_no=#{batch_no}
+  </update>
+  
+  <update id="updatematerialNum2">
+     UPDATE storehouse SET material_num=material_num - #{product_num}
+     WHERE batch_no=#{batch_no}
+  </update>
+  
+  <insert id="insertStorehouse" parameterType="cn.itcast.ssm.po.Storehouse" >
+    INSERT storehouse(client_material_no,material_no,material_name,material_spec,plan_no,batch_no,material_num,unit,is_cp)
+    VALUES(#{clientMaterialNo},#{materialNo},#{materialName},#{materialSpec},#{planNo},#{batchNo},#{materialNum},#{unit},#{isCp})
+   </insert>
+   
+   <!--查询最终入库数量-->
+   <select id="findProductNum" resultType="String">
+	  SELECT SUM(product_num) as num2 FROM product_record 
+	  WHERE batch_no2=#{batch_no} and plan_no=#{plan_no}   
+  </select>
+   
+   
+   <!--查询该批次第一个车间计划数量-->
+  <select id="findPlanNum"  resultType="String">
+	 SELECT plan_num FROM shop_plan WHERE batch_no=#{batch_no} and is_new='1' order by plan_id ASC limit 1
+  </select>
+  
+  <!--查询一个批次交接过程中不合品数-->
+  <select id="findUnqualifed_num" resultType="String">
+	  SELECT SUM(unqualified_num) as num2 FROM shop_transition 
+	  WHERE batch_no=#{batch_no} and shop1!="统计工段"   
+  </select>
+  
+  <!--查询当前车间交接合格品数量 -->
+  <select id="findQualifed_num"  resultType="String">
+	  SELECT SUM(qualified_num) as num FROM shop_transition 
+	  WHERE batch_no=#{1} and shop1=#{0} and priority=#{2}   
+  </select>
+  <!--半成品入库出现问题，更改为异常-->
+  <update id="updateBanAbnormal">
+     UPDATE product_record SET is_normal=#{is_normal}
+     WHERE batch_no2=#{batch_no} and batch_no1=""
+  </update>
+  
+  <!--成品入库出现问题，更改为异常-->
+  <update id="updateChenAbnormal">
+     UPDATE product_record SET is_normal=#{is_normal}
+     WHERE batch_no1=#{batch_no} and batch_no2=""
+  </update>
+  <select id="findOneBatchAllWork" resultType="cn.itcast.ssm.po.WorkCardNew">
+  	SELECT work_card.* FROM work_card,track_card 
+  	WHERE work_card.card_id=track_card.card_id
+  	AND track_card.plan_no=#{0}
+  	AND track_card.batch_no=#{1}
+  	AND track_card.client_material_no=#{2}
+  	AND track_card.material_no=#{3}
+  </select>
+  <update id="updateOneBatchAllNum" parameterType="java.util.List">
+  		UPDATE work_card
+		SET total_num=
+		<foreach collection="list" item="item" index="index"
+			   separator=" " open="case track_id" close="end">
+			  WHEN #{item.track_id} THEN #{item.total_num}
+		</foreach>
+		,hege_num=
+		<foreach collection="list" item="item" index="index"
+			   separator=" " open="case track_id" close="end">
+			  WHEN #{item.track_id} THEN #{item.hege_num}
+		</foreach>
+		WHERE track_id IN
+		<foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+			  #{item.track_id}
+		</foreach>
+  </update>
+  
+  <resultMap type="cn.itcast.ssm.po.ProductRecord" id="productRecord">
+	    <id column="record_id" property="recordId"/>
+	    <result column="plan_no" property="planNo"/>
+	    <result column="product_mc" property="productMc"/>
+	    <result column="product_num" property="productNum"/>
+		<result column="client_material_no" property="clientMaterialNo"/>
+		<result column="batch_no1" property="batchNo1"/>
+		<result column="material_no" property="materialNo"/>
+		<result column="batch_no2" property="batchNo2"/>
+		<result column="shop1" property="shop1"/>
+		<result column="provider" property="provider"/>
+		<result column="shop2" property="shop2"/>
+		<result column="acceptor" property="acceptor"/>
+		<result column="trans_date" property="transDate"/>
+		<result column="remark" property="remark"/>
+		<result column="unit" property="unit"/>
+	</resultMap>
+	
+  <select id="findNoRecordChengpinIn" resultMap="productRecord">
+  	SELECT * FROM product_record WHERE is_recorded=0 AND remark='成品入库'
+  </select>
+  
+  <update id="updateChengpinInRecord" parameterType="int">
+  	UPDATE product_record SET is_recorded=1 WHERE record_id=#{0}
+  </update>
+  </mapper>

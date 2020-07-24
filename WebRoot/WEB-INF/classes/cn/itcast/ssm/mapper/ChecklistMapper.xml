@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.ChecklistMapper">
+	    
+<select id="findPerson" resultType="cn.itcast.ssm.po.Person">
+      SELECT number,person_name FROM person
+</select>
+    
+<select id="findChecklist"  resultType="cn.itcast.ssm.po.Checklist">
+	 select a.material_no,a.batch_no,a.shop_name,b.process_name,c.asset_name,b.asset,b.operator from task AS b 
+	 INNER JOIN shop_plan AS a ON a.plan_id=b.plan_id
+     INNER JOIN asset AS c ON b.asset=c.asset_no
+     where  a.material_no=#{0} and a.batch_no=#{1} and a.shop_name=#{2} and a.is_new='1' group by b.process_name
+</select>
+<select id="findCommon" resultType="cn.itcast.ssm.po.Asset">
+     select asset_name,asset_no,is_common from asset where asset_no=#{asset_no}
+</select> 
+
+<!-- <select id="findContent" resultType="cn.itcast.ssm.po.Content">
+      SELECT DISTINCT check_content.result FROM check_content,asset
+      WHERE asset.asset_no=#{0} AND asset.asset_name=check_content.asset_name
+</select>  -->
+
+<select id="findContent" resultType="cn.itcast.ssm.po.Content">
+      SELECT DISTINCT check_content.result FROM check_content
+      WHERE check_content.asset_name=#{0}
+</select>
+
+<select id="findCheckContent_asset" resultType="String">
+     SELECT DISTINCT asset_name FROM check_content
+</select>
+
+<select id="findWhatRfid" parameterType="string" resultType="string">
+    SELECT phynum FROM rfidlabel WHERE rfid = #{rfid}
+</select>
+
+<select id="findRfIdIsHere" parameterType="string" resultType="cn.itcast.ssm.po.RFIdLabel">
+    SELECT * FROM rfidlabel WHERE rfid = #{rfid}
+</select>
+
+<insert id="insertRfIdLabel" parameterType="cn.itcast.ssm.po.RFIdLabel">
+    INSERT rfidlabel(phynum,rfid,type,time) values(#{phynum},#{rfid},#{type},#{time}) 
+</insert>
+
+<update id="updateRfIdLabel" parameterType="cn.itcast.ssm.po.RFIdLabel">
+    UPDATE rfidlabel SET phynum=#{phynum},type=#{type},time=#{time} WHERE rfid=#{rfid}
+</update>
+
+<select id="findUser" parameterType="string" resultType="cn.itcast.ssm.po.Person">
+    SELECT * FROM person WHERE number=#{0}
+</select>
+
+<select id="findUserAndPassword" parameterType="cn.itcast.ssm.po.Person" resultType="cn.itcast.ssm.po.Person">
+    SELECT * FROM person WHERE number=#{number} AND password=#{password}
+</select>
+</mapper>

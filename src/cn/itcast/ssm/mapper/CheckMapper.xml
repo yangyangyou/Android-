@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.itcast.ssm.mapper.CheckMapper">
+    
+<!--   <sql id="update_check_where">
+        <if test="checkRecord!=null">
+            <if test="checkRecord.check_id!=null">
+                    check_id=#{check_id}
+            </if>
+        </if>
+    </sql> -->
+
+    <resultMap type="dailyCheck" id="checkFind">
+      <!-- 用户信息映射 -->
+      <id column="check_id" property="check_id"/>
+      <result column="asset_no" property="asset_no"/>
+      <result column="asset_xh" property="asset_xh"/>
+      <!-- 订单信息 -->
+      <collection property="checkSelecting" ofType="cn.itcast.ssm.po.CheckSelecting">
+          <id column="id" property="id"/>
+          <result column="asset_id" property="asset_id"/>
+          <result column="check_selecting" property="check_selecting"/>
+      </collection>
+      <collection property="checkRecord" ofType="cn.itcast.ssm.po.CheckRecord">
+          <id column="record_id" property="id"/>
+          <result column="check_id" property="check_id"/>
+          <result column="check_content" property="check_content"/>
+          <result column="results_1" property="results_1"/>
+          <result column="time_1" property="time_1"/>
+      </collection>
+     </resultMap>
+    
+    <select id="findAssetList" resultMap="checkFind">
+        SELECT asset_no,asset_xh,check_selecting,daily_check.check_id
+        FROM daily_check,check_selecting
+        WHERE daily_check.asset_no=check_selecting.asset_id
+    </select>
+    
+    <update id="updateCheckList_1" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_1=#{results_1},time_1=#{time_1},remarks_1=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update>   
+    
+    <update id="updateCheckList_2" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_2=#{results_1},time_2=#{time_1},remarks_2=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update> 
+    
+    <update id="updateCheckList_3" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_3=#{results_1},time_3=#{time_1},remarks_3=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update> 
+    
+    <update id="updateCheckList_4" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_4=#{results_1},time_4=#{time_1},remarks_4=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update> 
+    
+    <update id="updateCheckList_5" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_5=#{results_1},time_5=#{time_1},remarks_5=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update> 
+    
+    <update id="updateCheckList_6" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_6=#{results_1},time_6=#{time_1},remarks_6=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update> 
+    
+    <update id="updateCheckList_7" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_7=#{results_1},time_7=#{time_1},remarks_7=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update> 
+    
+    <update id="updateCheckList_8" parameterType="cn.itcast.ssm.po.CheckRecord" >
+        UPDATE check_record SET results_8=#{results_1},time_8=#{time_1},remarks_8=#{remarks_1},
+        check_content=#{check_content} WHERE record_id=#{record_id}
+    </update> 
+    
+    <select id="selectCheckList" parameterType="cn.itcast.ssm.po.CheckRecord" resultType="cn.itcast.ssm.po.CheckRecord">
+        SELECT * FROM check_record WHERE check_id=#{check_id} AND check_content=#{check_content}
+    </select>
+    
+    <insert id="insertCheckList" parameterType="cn.itcast.ssm.po.CheckRecord">
+        INSERT check_record(check_id,check_content,results_1,time_1,remarks_1) values(#{check_id},#{check_content},#{results_1},#{time_1},#{remarks_1})
+    </insert>
+    <insert id="insertDailyCheck" parameterType="cn.itcast.ssm.po.DailyCheck_2">
+        <selectKey keyProperty="check_id" order="AFTER" resultType="int">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+        INSERT daily_check(asset_no,asset_name,operator,error_date,is_rijian) 
+        VALUES(#{asset_no},#{asset_name},#{operator},#{error_date},0)    
+    </insert>
+    <select id="findPlanNo" parameterType="cn.itcast.ssm.po.DailyCheck_2" resultType="cn.itcast.ssm.po.ShopPlan">
+       SELECT plan_no,client_material_no FROM shop_plan 
+       WHERE is_new=1 
+       AND material_no=#{material_no}
+       AND batch_no=#{batch_no}
+       AND shop_name=#{shop_name}
+    </select>
+    <select id="findDailyCheck" parameterType="cn.itcast.ssm.po.DailyCheck_2" resultType="cn.itcast.ssm.po.DailyCheck_2">
+         SELECT * FROM daily_check WHERE asset_no=#{asset_no} 
+         AND asset_name=#{asset_name} AND operator=#{operator}
+         AND error_date=#{error_date}
+    </select>
+    <select id="findCheckId" resultType="cn.itcast.ssm.po.DailyCheck_2">
+    	SELECT * FROM daily_check WHERE error_date=#{0} AND operator=#{1}
+    </select>
+    <select id="findCheckRecord" resultType="cn.itcast.ssm.po.CheckRecord">
+    	SELECT * FROM check_record WHERE check_id=#{0}
+    </select>
+    
+    <select id="findAsset" resultType="cn.itcast.ssm.po.Asset">
+    	 SELECT * FROM asset WHERE position=#{0}
+    </select>
+    
+     <select id="findCheck_id" resultType="cn.itcast.ssm.po.DailyCheck_2">
+    	SELECT DISTINCT check_id,operator FROM daily_check WHERE asset_no=#{0} and is_rijian=0 and error_date=date_format(now(),'%Y-%m-%d')
+    </select>
+    
+     <select id="findDianjianresults" resultType="cn.itcast.ssm.po.CheckRecord">
+        SELECT * FROM check_record WHERE check_id=#{0}
+    </select>
+    
+</mapper>

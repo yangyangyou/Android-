@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.MoldGetBackMapper">
+	    <insert id="GetBackMold" parameterType="cn.itcast.ssm.po.MoldRecord">
+	        INSERT mold_record(batch_no,material_no,mold_name,mold_no,num,acceptor,provider,out_date,in_date,remark) values(#{batch_no},
+	        #{material_no},#{mold_name},#{mold_no},#{num},#{acceptor},#{provider},#{out_date},#{in_date},#{remark})
+	    </insert>
+	    <select id="findMoldName" parameterType="string" resultType="string">
+	        SELECT mold_name FROM molds WHERE mold_no=#{mold_no}
+	    </select>
+	    <select id="findPlanId" parameterType="string">
+	    	SELECT plan_id FROM shop_plan WHERE batch_no=#{0}
+	    </select>
+	    <select id="findBindingMold" parameterType="cn.itcast.ssm.po.MoldVo" 
+	       resultType="cn.itcast.ssm.po.Task_New">
+	    	SELECT * FROM task
+	    	WHERE asset=#{asset_no} AND plan_id IN
+	    	<foreach collection="plan_id" item="plan_id" open=" (" close=")" separator=",">
+            	#{plan_id}
+        	</foreach>
+	    </select>
+	    <update id="updateMold" parameterType="cn.itcast.ssm.po.MoldUpdateVo">
+	    	UPDATE task SET mold=#{mold} WHERE
+	    	task_id IN
+	    	<foreach collection="task_id" item="task_id" open=" (" close=")" separator=",">
+            	#{task_id}
+        	</foreach>
+	    </update>
+	    <select id="findIsMold" parameterType="String" resultType="cn.itcast.ssm.po.MoldOfAsset">
+	    	SELECT * FROM mold_asset WHERE asset_no=#{asset_no}
+	    </select>
+	    <update id="updateAssetMold" parameterType="String">
+	    	UPDATE mold_asset SET is_mold=1,mold=#{0}
+	    	WHERE asset_no=#{1}
+	    </update>
+	    <insert id="insertAssetMold" parameterType="cn.itcast.ssm.po.MoldOfAsset">
+	    	INSERT mold_asset(asset_no,mold,is_mold) VALUES(#{asset_no},#{mold},#{is_mold})
+	    </insert>
+	    <update id="deleteAssetMold" parameterType="String">
+	    	UPDATE mold_asset SET is_mold=0,mold="" WHERE asset_no=#{0}
+	    </update>
+	</mapper>

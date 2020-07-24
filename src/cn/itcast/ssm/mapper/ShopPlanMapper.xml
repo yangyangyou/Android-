@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.itcast.ssm.mapper.ShopPlanMapper">
+
+<resultMap type="cn.itcast.ssm.po.MoldReadyFindVo" id="moldFindResultMap">
+	        <id column="plan_id" property="plan_id"/>
+	        <result column="material_no" property="material_no"/>
+	        <result column="plan_no" property="plan_no"/>
+	        <result column="batch_no" property="batch_no"/>
+	        <result column="shop_name" property="shop_name"/>
+	        <collection property="molds" ofType="cn.itcast.ssm.po.MoldReady">
+	            <id column="id" property="id"/>
+	            <result column="plan_id" property="plan_id"/>
+	            <result column="process_name" property="process_name"/>
+	            <result column="mold" property="mold"/>
+	            <result column="is_ready" property="is_ready"/>
+	        </collection>
+	    </resultMap>
+	    
+	<resultMap type="cn.itcast.ssm.po.GetMaterial" id="getMaterial">
+	    <id column="get_material_id" property="get_material_id"/>
+	    <result column="plan_no" property="plan_no"/>
+	    <result column="material_name" property="material_name"/>
+		<result column="client_material_no" property="client_material_no"/>
+		<result column="product_spec" property="product_spec"/>
+		<result column="material_no" property="material_no"/>
+		<result column="shop_name" property="shop_name"/>
+		<result column="apply_people" property="apply_people"/>
+		<result column="apply_date" property="apply_date"/>
+		<result column="approver" property="approver"/>
+		<result column="approver_date" property="approver_date"/>
+		<result column="batch_no" property="batch_no"/>
+		<collection property="getDetails" ofType="cn.itcast.ssm.po.GetDetail">
+			<id column="detail_id" property="detail_id"/>
+			<result column="get_material_id" property="get_material_id"/>
+			<result column="cailiao_mc" property="cailiao_mc"/>
+			<result column="cailiao_bh" property="cailiao_bh"/>
+			<result column="unit" property="unit"/>
+			<result column="material_num" property="material_num"/>
+		</collection>
+	</resultMap>
+<select id="findProcess" resultType="String">
+     SELECT process FROM shop_process WHERE material_no=#{0} AND shop=#{1}
+</select>
+<select id="findOperator" parameterType="String" resultType="cn.itcast.ssm.po.Person">
+    SELECT person_name,number FROM person WHERE department=#{department}
+</select>
+<select id="findPlanId" resultType="int">
+    SELECT plan_id FROM shop_plan WHERE material_no=#{0} AND batch_no=#{1} AND plan_no=#{2} AND shop_name=#{3} AND is_new=1
+</select>
+<select id="findTask" resultType="cn.itcast.ssm.po.Task_New">
+    SELECT asset,operator FROM task WHERE plan_id=#{0} AND process_name=#{1}
+</select>
+<select id="findRealProcess" resultType="String">
+	SELECT DISTINCT process_name FROM task WHERE plan_id=#{0}
+</select>
+<select id="findRealProcessOneWorker" resultType="String">
+	SELECT DISTINCT process_name FROM task WHERE plan_id=#{0} AND operator LIKE #{1}
+</select>
+<select id="findProductionPlan" resultType="cn.itcast.ssm.po.ProductionPlan">
+    SELECT * FROM production_plan WHERE plan_no=#{0} AND material_no=#{1}
+</select>
+<insert id="insertNewShopPlan" parameterType="cn.itcast.ssm.po.ShopPlan">
+    <selectKey keyProperty="plan_id" order="AFTER" resultType="int">
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+    INSERT shop_plan(client,plan_no,client_material_no,material_no,product_spec,batch_no,shop_name,material_name,plan_people,plan_date,plan_num
+    ,online_date,produced_num,completed_date,is_latest,is_new,is_product) VALUES(#{client},#{plan_no},#{client_material_no},#{material_no},#{product_spec},#{batch_no},#{shop_name},#{material_name},#{plan_people},#{plan_date},#{plan_num}
+    ,#{online_date},#{produced_num},#{completed_date},1,1,0)
+</insert>
+<insert id="insertTask" parameterType="cn.itcast.ssm.po.Task_New">
+    INSERT task(plan_id,process_name,asset,operator,mold) VALUES(#{plan_id},#{process_name},#{asset},#{operator},#{mold})
+</insert>
+<update id="updateShopPlan" parameterType="int">
+    UPDATE shop_plan SET is_new=0 WHERE plan_id=#{0}
+</update>
+<select id="findCardId" resultType="cn.itcast.ssm.po.TrackCard">
+    SELECT * FROM track_card WHERE plan_no=#{0} AND material_no=#{1} AND batch_no=#{2}
+</select>
+<select id="findWorkCard" resultType="cn.itcast.ssm.po.WorkCardNew">
+    SELECT * FROM work_card WHERE card_id=#{0} AND shop_name=#{1} AND process_name=#{2} AND asset=#{3}
+    AND operator=#{4}
+</select>
+<select id="findWorkCardTogether" parameterType="cn.itcast.ssm.po.OperatorVo" resultType="cn.itcast.ssm.po.WorkCardNew">
+    SELECT * FROM work_card
+    <where>
+        card_id=#{card_id} AND shop_name=#{shop_name} AND process_name=#{process_name} 
+        AND asset=#{asset}
+        <foreach collection="operator" item="operator" open=" AND (" close=")" separator="OR">
+            operator=#{operator}
+        </foreach>
+    </where>
+</select>
+<select id="findCipin" resultType="cn.itcast.ssm.po.CipinNew">
+    SELECT * FROM cipin WHERE track_id=#{0}
+</select>
+<select id="findCipinType" resultType="cn.itcast.ssm.po.CipinType">
+    SELECT * FROM cipin_type WHERE shop_name=#{0} AND cipin_type=#{1}
+</select>
+<select id="findLiaofeiType" resultType="cn.itcast.ssm.po.CipinType">
+    SELECT * FROM cipin_type WHERE cipin_type="料废"
+</select>
+<insert id="insertWorKCard" parameterType="cn.itcast.ssm.po.WorkCardNew">
+    <selectKey keyProperty="track_id" order="AFTER" resultType="int">
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+    INSERT work_card(card_id,shop_name,process_name,operator,asset,asset_state,mold,mold_state,total_num,hege_num,total_cipin_num,
+    produce_date,price) VALUES(#{card_id},#{shop_name},#{process_name},#{operator},#{asset},#{asset_state},#{mold},#{mold_state},#{total_num},#{hege_num},#{total_cipin_num},
+    #{produce_date},#{price})
+</insert>
+<insert id="insertTemPriceWorKCard" parameterType="cn.itcast.ssm.po.WorkCardNew">
+    <selectKey keyProperty="track_id" order="AFTER" resultType="int">
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+    INSERT work_card(card_id,shop_name,process_name,operator,asset,asset_state,mold,mold_state,total_num,hege_num,total_cipin_num,
+    produce_date,tem_price,is_approval) VALUES(#{card_id},#{shop_name},#{process_name},#{operator},#{asset},#{asset_state},#{mold},#{mold_state},#{total_num},#{hege_num},#{total_cipin_num},
+    #{produce_date},#{tem_price},0)
+</insert>
+<insert id="insertCipin" parameterType="cn.itcast.ssm.po.CipinNew">
+    INSERT cipin(track_id,cipin_type,cipin_species,cipin_num) VALUES(#{track_id},#{cipin_type},#{cipin_species},#{cipin_num})
+</insert>
+<update id="updateWorkCard" parameterType="cn.itcast.ssm.po.WorkCardNew">
+    UPDATE work_card SET asset_state=#{asset_state},mold=#{mold},mold_state=#{mold_state},total_num=#{total_num},hege_num=#{hege_num},total_cipin_num=#{total_cipin_num},price=#{price}
+    WHERE track_id=#{track_id}
+</update>
+<update id="updateTemPriceWorkCard" parameterType="cn.itcast.ssm.po.WorkCardNew">
+    UPDATE work_card SET asset_state=#{asset_state},mold=#{mold},mold_state=#{mold_state},total_num=#{total_num},hege_num=#{hege_num},total_cipin_num=#{total_cipin_num},tem_price=#{tem_price},is_approval=0
+    WHERE track_id=#{track_id}
+</update>
+<update id="updateCipin" parameterType="cn.itcast.ssm.po.CipinNew">
+    UPDATE cipin SET cipin_num=#{cipin_num} WHERE cipin_id={cipin_id}
+</update>
+<delete id="deleteCipin" parameterType="int">
+    DELETE FROM cipin WHERE track_id=#{0}
+</delete>
+<select id="findNewProductionPlan" parameterType="string" resultType="cn.itcast.ssm.po.ProductionPlan">
+SELECT * FROM production_plan WHERE is_new=1 AND is_product=0 AND is_monthly_plan=0 AND sort LIKE #{0}
+</select>
+<select id="findShopDelivery" parameterType="int" resultType="cn.itcast.ssm.po.ShopDelivery">
+SELECT * FROM shop_delivery WHERE plan_id = #{0}
+</select>
+<select id="findPushProductionPlan" resultType="cn.itcast.ssm.po.ProductionPlan">
+SELECT * FROM production_plan WHERE is_latest=1 AND is_monthly_plan=0
+</select>
+<update id="updatePushProductionPlan" parameterType="int">
+UPDATE production_plan SET is_latest=0 WHERE plan_id=#{0}
+</update>
+<select id="findPlanNum" resultType="String">
+SELECT plan_num FROM shop_plan WHERE plan_id=#{0}
+</select>
+<select id="findPrice" resultType="String">
+SELECT price FROM shop_process WHERE material_no=#{0} AND shop=#{1} AND process=#{2}
+</select>
+<select id="findAssetMold" resultType="String">
+SELECT mold FROM mold_asset WHERE asset_no=#{0} AND is_mold=1
+</select>
+<select id="findAndUpdateTemPrice" resultType="cn.itcast.ssm.po.WorkCardNew">
+  SELECT DISTINCT work_card.process_name,work_card.tem_price,work_card.is_approval 
+  FROM work_card,track_card
+  WHERE work_card.card_id = track_card.card_id
+  AND track_card.material_no = #{0}
+  AND track_card.plan_no = #{1}
+  AND track_card.batch_no = #{2}
+  AND work_card.shop_name=#{3}
+  AND work_card.tem_price IS NOT null
+  AND work_card.is_approval = 2
+</select>
+<select id="findTemPrice" resultType="cn.itcast.ssm.po.WorkCardNew">
+  SELECT DISTINCT work_card.process_name,work_card.tem_price,work_card.is_approval 
+  FROM work_card,track_card
+  WHERE work_card.card_id = track_card.card_id
+  AND track_card.material_no = #{0}
+  AND track_card.plan_no = #{1}
+  AND track_card.batch_no = #{2}
+  AND work_card.shop_name=#{3}
+  AND work_card.tem_price IS NOT null
+</select>
+<update id="updateTemPrice" parameterType="cn.itcast.ssm.po.ChangeTemPriceVo">
+		UPDATE work_card,track_card
+		SET work_card.tem_price=
+		<foreach collection="workCards" item="item"
+			   separator=" " open="case process_name" close="end">
+			  WHEN #{item.process_name} THEN #{item.tem_price}
+		</foreach>
+		,work_card.is_approval=2
+		WHERE work_card.card_id = track_card.card_id
+		AND track_card.material_no = #{material_no}
+		AND track_card.batch_no = #{batch_no}
+		AND track_card.plan_no = #{plan_no}
+		AND work_card.process_name IN
+		<foreach collection="workCards" item="item" separator="," open="(" close=")">
+			  #{item.process_name}
+		</foreach>
+</update>
+<select id="findNeedMold" resultType="String">
+	SELECT mold_no FROM shop_process WHERE material_no=#{0} AND shop=#{1} AND process=#{2} AND client_material_no=#{3}
+</select>
+<insert id="insertNeedMold" parameterType="cn.itcast.ssm.po.MoldReady">
+	INSERT mold_ready(plan_id,process_name,mold,is_ready) VALUES(#{plan_id},#{process_name},#{mold},0)
+</insert>
+<select id="findNoReadyMold" resultMap="moldFindResultMap">
+	SELECT shop_plan.material_no,shop_plan.batch_no,shop_plan.plan_no,shop_plan.shop_name
+	,mold_ready.id,mold_ready.process_name,mold_ready.mold 
+	FROM mold_ready,shop_plan WHERE mold_ready.is_ready=0 AND mold_ready.plan_id=shop_plan.plan_id AND shop_plan.is_new=1
+</select>
+<update id="updateReadyMold" parameterType="int">
+	UPDATE mold_ready SET is_ready=1 WHERE id=#{0}
+</update>
+<select id="findAssetName" parameterType="string" resultType="cn.itcast.ssm.po.Asset">
+	SELECT asset_name,asset_type FROM asset WHERE asset_no=#{0}
+</select>
+<select id="findNoPushGetMaterial" resultMap="getMaterial">
+	SELECT 
+		get_material.get_material_id,
+		get_material.plan_no,
+		get_material.batch_no,
+		get_material.material_name,
+		get_material.material_no,
+		get_material.client_material_no,
+		get_material.product_spec,
+		get_material.shop_name,
+		get_material.apply_people,
+		get_material.apply_date,
+		get_material.approver,
+		get_material.approval_date,
+		get_detail.detail_id,
+		get_detail.get_material_id,
+		get_detail.cailiao_mc,
+		get_detail.cailiao_bh,
+		get_detail.unit,
+		get_detail.material_num
+	FROM get_material LEFT JOIN get_detail ON get_material.get_material_id=get_detail.get_material_id
+	WHERE get_material.is_approval=1 AND get_material.is_pushed=0;
+</select>
+<update id="updateGetMaterialPush" parameterType="int">
+	UPDATE get_material SET is_pushed=1 WHERE get_material_id=#{0}
+</update>
+<select id="findNoGetGetMaterial" resultMap="getMaterial">
+	SELECT 
+		get_material.get_material_id,
+		get_material.plan_no,
+		get_material.batch_no,
+		get_material.material_name,
+		get_material.material_no,
+		get_material.client_material_no,
+		get_material.product_spec,
+		get_material.shop_name,
+		get_material.apply_people,
+		get_material.apply_date,
+		get_material.approver,
+		get_material.approval_date,
+		get_detail.detail_id,
+		get_detail.get_material_id,
+		get_detail.cailiao_mc,
+		get_detail.cailiao_bh,
+		get_detail.unit,
+		get_detail.material_num
+	FROM get_material LEFT JOIN get_detail ON get_material.get_material_id=get_detail.get_material_id
+	WHERE get_material.is_approval=1 AND get_material.is_got=0;
+</select>
+<update id="updateMaterialGet" parameterType="int">
+	UPDATE get_material SET is_got=1,is_recorded=0 WHERE get_material_id=#{0}
+</update>
+<insert id="insertProcessTransition" parameterType="cn.itcast.ssm.po.ProcessTransition">
+	INSERT process_transition
+	(plan_no,client_material_no,material_no,batch_no,shop_name,
+	provider,process1,acceptor,process2,tran_date,qualified_num,unqualified_num) 
+	VALUES(#{plan_no},#{client_material_no},#{material_no},#{batch_no},#{shop_name},
+	#{provider},#{process1},#{acceptor},#{process2},#{tran_date},#{qualified_num},#{unqualified_num})
+</insert>
+<update id="updateProcessTransition" parameterType="cn.itcast.ssm.po.ProcessTransition">
+	UPDATE process_transition SET acceptor=#{acceptor},tran_date=#{tran_date},qualified_num=#{qualified_num},unqualified_num=#{unqualified_num}
+	WHERE plan_no=#{plan_no} AND client_material_no=#{client_material_no} AND material_no=#{material_no} AND batch_no=#{batch_no} AND shop_name=#{shop_name} 
+	AND provider=#{provider} AND process1=#{process1}
+</update>
+<select id="findProcessAcceptorTogether" parameterType="cn.itcast.ssm.po.ProcessTransitionVo" resultType="string">
+	SELECT acceptor FROM process_transition WHERE plan_no=#{plan_no} AND client_material_no=#{client_material_no} AND material_no=#{material_no} AND batch_no=#{batch_no} AND shop_name=#{shop_name} 
+	AND process1=#{process1}
+		<foreach collection="operators" item="operators" open=" AND (" close=")" separator="OR">
+            provider=#{operators}
+        </foreach>
+</select>
+<select id="findProcessAcceptor" parameterType="cn.itcast.ssm.po.ProcessTransition" resultType="string">
+	SELECT acceptor FROM process_transition WHERE plan_no=#{plan_no} AND client_material_no=#{client_material_no} AND material_no=#{material_no} AND batch_no=#{batch_no} AND shop_name=#{shop_name} 
+	AND process1=#{process1} AND provider=#{provider}
+</select>
+ <select id="findMonthPlan" resultType="cn.itcast.ssm.po.MonthPlan">
+    SELECT * FROM month_plan WHERE month=date_format(now(),'%Y-%m')
+ </select>
+
+</mapper> 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.itcast.ssm.mapper.ProcessQueryMapper">
+<sql id="findPlanID_where">
+    <if test="shopPlan!=null">
+        <if test="shopPlan.material_no!=null and shopPlan.material_no!=''">
+            AND client_material_no=#{shopPlan.material_no}
+        </if>
+        <if test="shopPlan.batch_no!=null and shopPlan.batch_no!=''">
+            AND batch_no=#{shopPlan.batch_no}
+        </if>
+        <if test="shopPlan.shop_name!=null and shopPlan.shop_name!=''">
+            AND shop_name=#{shopPlan.shop_name}
+        </if>
+    </if>
+</sql>
+    
+<select id="findPlanId" parameterType="cn.itcast.ssm.po.ShopPlanVo" resultType="int">
+    SELECT plan_id FROM shop_plan 
+    <where>
+        1=1
+        <include refid="findPlanID_where"></include>
+    </where>
+</select>
+
+<select id="findProcess" parameterType="int" resultType="cn.itcast.ssm.po.Task">
+    SELECT process_name FROM task WHERE plan_id=#{id}
+</select>
+
+</mapper>

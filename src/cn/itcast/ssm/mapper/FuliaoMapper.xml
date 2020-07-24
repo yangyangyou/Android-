@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.FuliaoMapper">
+	    <resultMap type="cn.itcast.ssm.po.GetSecMaterials" id="fuliaoDetailsResultMap">
+	        <id column="get_materials_id" property="get_materials_id"/>
+	        <result column="shop_name" property="shop_name"/>
+	        <result column="acceptor" property="acceptor"/>
+	        <result column="provider" property="provider"/>
+	        <result column="applyer" property="applyer"/>
+	        <result column="apply_data" property="apply_data"/>
+	        <result column="approver" property="approver"/>
+	        <result column="approver_data" property="approver_data"/>
+	        <result column="is_approve" property="is_approve"/>
+	        <result column="is_apply" property="is_apply"/>
+	        <result column="is_pushed" property="is_pushed"/>
+	        <result column="is_recorded" property="is_recorded"/>
+	        <result column="is_return" property="is_return"/>
+	        <collection property="get_sec_details" ofType="cn.itcast.ssm.po.GetSecDetail">
+	            <id column="detail_id" property="detail_id"/>
+	            <result column="get_materials_id" property="get_materials_id"/>
+	            <result column="reshop_name" property="reshop_name"/>
+	            <result column="sec_material_name" property="sec_material_name"/>
+	            <result column="sec_material_no" property="sec_material_no"/>
+	            <result column="type" property="type"/>
+	            <result column="num" property="num"/>
+	            <result column="unit" property="unit"/>
+	            <result column="returner" property="returner"/>
+	            <result column="time" property="time"/>
+	            <result column="remark" property="remark"/>
+	            <result column="is_return" property="is_return"/>
+	            <result column="is_recorded" property="is_recorded"/>
+	        </collection>
+	    </resultMap>
+	    
+	    
+	    <select id="findFuliaoDetails" resultType="cn.itcast.ssm.po.SecondaryMaterials">
+	        SELECT sec_materials_name,type,unit,number,product_no,product_describe FROM secondary_materials WHERE sec_materials_name LIKE #{0}
+	    </select>
+	    
+	    <!-- 检具的检索 -->
+	    <select id="findSpecialGauge" resultType="cn.itcast.ssm.po.SpecialGauge">
+	        SELECT * FROM special_gauge WHERE inspection_production LIKE #{0} OR gauge_name LIKE #{1}
+	    </select>
+	    <select id="findHeightGauge" resultType="cn.itcast.ssm.po.HeightGauge">
+	        SELECT gauge_no,product_specification,tolerance_range FROM height_gauge 
+	        WHERE product_specification LIKE #{0}
+	    </select>
+	    
+	    
+	    <insert id="insertFuliao" parameterType="cn.itcast.ssm.po.GetSecMaterials">
+	       <selectKey keyProperty="get_materials_id" order="AFTER" resultType="int">
+          		SELECT LAST_INSERT_ID()
+           </selectKey>
+	        	INSERT INTO get_sec_materials(shop_name,applyer,apply_data,is_approve,is_apply,is_pushed,is_return,is_recorded,acceptor,provider) 
+	        	VALUES(#{shop_name},#{applyer},#{apply_data},#{is_approve},#{is_apply},#{is_pushed},#{is_return},#{is_recorded},#{acceptor},#{provider})
+	    </insert>
+	   	<insert id="insertFuliaoDetail" parameterType="java.util.List">
+	   	    INSERT INTO get_sec_detail(get_materials_id,reshop_name,sec_material_name,sec_material_no,type,num,unit,is_return)
+	   	    VALUES
+	   	    <foreach collection="list" item="item" index="index" separator=",">
+	   	        (
+	   	        	#{item.get_materials_id},
+	   	        	#{item.reshop_name},
+	   	        	#{item.sec_material_name},
+	   	        	#{item.sec_material_no},
+	   	        	#{item.type},
+	   	        	#{item.num},
+	   	        	#{item.unit},
+	   	        	#{item.is_return}
+	   	        )
+	   	    </foreach>
+	   	</insert>
+	   	
+	   	<insert id="insertBackFuliao" parameterType="java.util.List">
+	   	    INSERT INTO get_sec_detail(get_materials_id,reshop_name,sec_material_name,sec_material_no,type,num,unit,returner,receiver,
+	   	    time,remark,is_return,is_recorded)
+	   	    VALUES
+	   	    <foreach collection="list" item="item" index="index" separator=",">
+	   	        (
+	   	        	#{item.get_materials_id},
+	   	        	#{item.reshop_name},
+	   	        	#{item.sec_material_name},
+	   	        	#{item.sec_material_no},
+	   	        	#{item.type},
+	   	        	#{item.num},
+	   	        	#{item.unit},
+	   	        	#{item.returner},
+	   	        	#{item.receiver},
+	   	        	#{item.time},
+	   	        	#{item.remark},
+	   	        	#{item.is_return},
+	   	        	0
+	   	        )
+	   	    </foreach>
+	   	</insert>
+	   	
+	   	<select id="findNoGetFuliao" resultMap="fuliaoDetailsResultMap">
+	   	    SELECT 
+	   	    get_sec_materials.apply_data,get_sec_materials.is_approve,get_sec_detail.*
+	   	    FROM 
+	   	    get_sec_materials,get_sec_detail
+	   	    WHERE
+	   	    get_sec_detail.get_materials_id=get_sec_materials.get_materials_id
+	   	    AND
+	   	    get_sec_materials.shop_name=#{0}
+	   	    AND
+	   	    get_sec_materials.applyer=#{1}
+	   	    AND
+	   	    get_sec_materials.is_apply=0
+	   	</select>
+	   	
+	   	<update id="updateGetSecMaterial" parameterType="cn.itcast.ssm.po.GetSecMaterials">
+	   	    UPDATE get_sec_materials SET acceptor=#{acceptor},provider=#{provider},is_apply=1,is_recorded=0,is_return=0
+	   	    WHERE get_materials_id=#{get_materials_id}
+	   	</update>
+	   	
+	   	<update id="updateGetSecDetail" parameterType="java.util.List">
+	   	    UPDATE get_sec_detail
+	   	    SET time=
+	   	    <foreach collection="list" item="item" index="index"
+	   	        separator=" " open="case detail_id" close="end">
+	   	        WHEN #{item.detail_id} THEN #{item.time}
+	   	    </foreach>
+	   	    ,remark=
+	   	    <foreach collection="list" item="item" index="index"
+	   	        separator=" " open="case detail_id" close="end">
+	   	        WHEN #{item.detail_id} THEN #{item.remark}
+	   	    </foreach>
+	   	    ,is_return=0
+	   	    WHERE detail_id IN
+	   	    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+	   	        #{item.detail_id}
+	   	    </foreach>
+	   	</update>
+	   	
+	   	<select id="findNoPushSecMaterial" resultMap="fuliaoDetailsResultMap">
+	   		SELECT 
+	   			get_sec_materials.get_materials_id,
+	   			get_sec_materials.shop_name,
+	   			get_sec_materials.acceptor,
+	   			get_sec_materials.provider,
+	   			get_sec_materials.applyer,
+	   			get_sec_materials.apply_data,
+	   			get_sec_materials.approver,
+	   			get_sec_materials.approve_data,
+	   			get_sec_detail.detail_id,
+	   			get_sec_detail.get_materials_id,
+	   			get_sec_detail.reshop_name,
+	   			get_sec_detail.sec_material_name,
+	   			get_sec_detail.sec_material_no,
+	   			get_sec_detail.type,
+	   			get_sec_detail.num,
+	   			get_sec_detail.unit,
+	   			get_sec_detail.returner,
+	   			get_sec_detail.receiver,
+	   			get_sec_detail.time,
+	   			get_sec_detail.remark
+	   		FROM get_sec_materials LEFT JOIN get_sec_detail
+	   		ON get_sec_materials.get_materials_id=get_sec_detail.get_materials_id
+	   		WHERE get_sec_materials.is_approve=1 AND get_sec_materials.is_pushed=0
+	   		AND get_sec_detail.is_return=0
+	   	</select>
+	   	<update id="updateNoPushSecMaterial" parameterType="int">
+	   		UPDATE get_sec_materials SET is_pushed=1 WHERE get_materials_id=#{0}
+	   	</update>
+	   	<select id="findNoGetSecMaterial" resultMap="fuliaoDetailsResultMap">
+	   		SELECT 
+	   			get_sec_materials.get_materials_id,
+	   			get_sec_materials.shop_name,
+	   			get_sec_materials.acceptor,
+	   			get_sec_materials.provider,
+	   			get_sec_materials.applyer,
+	   			get_sec_materials.apply_data,
+	   			get_sec_materials.approver,
+	   			get_sec_materials.approve_data,
+	   			get_sec_detail.detail_id,
+	   			get_sec_detail.get_materials_id,
+	   			get_sec_detail.reshop_name,
+	   			get_sec_detail.sec_material_name,
+	   			get_sec_detail.sec_material_no,
+	   			get_sec_detail.type,
+	   			get_sec_detail.num,
+	   			get_sec_detail.unit,
+	   			get_sec_detail.time,
+	   			get_sec_detail.remark
+	   		FROM get_sec_materials LEFT JOIN get_sec_detail
+	   		ON get_sec_materials.get_materials_id=get_sec_detail.get_materials_id
+	   		WHERE get_sec_materials.is_approve=1 AND get_sec_materials.is_apply=0
+	   		AND get_sec_detail.is_return=0
+	   	</select>
+	   	<update id="updateNoGetSecMaterial" parameterType="int">
+	   		UPDATE get_sec_materials SET is_apply=1 WHERE get_materials_id=#{0}
+	   	</update>
+	   	<select id="findNoRecordGetSec" resultMap="fuliaoDetailsResultMap">
+	   		SELECT 
+	   			get_sec_materials.get_materials_id,
+	   			get_sec_materials.shop_name,
+	   			get_sec_materials.acceptor,
+	   			get_sec_materials.provider,
+	   			get_sec_materials.is_return,
+	   			get_sec_detail.detail_id,
+	   			get_sec_detail.get_materials_id,
+	   			get_sec_detail.reshop_name,
+	   			get_sec_detail.sec_material_name,
+	   			get_sec_detail.sec_material_no,
+	   			get_sec_detail.type,
+	   			get_sec_detail.num,
+	   			get_sec_detail.unit,
+	   			get_sec_detail.time,
+	   			get_sec_detail.remark
+	   		FROM get_sec_materials LEFT JOIN get_sec_detail
+	   		ON get_sec_materials.get_materials_id=get_sec_detail.get_materials_id
+	   		WHERE get_sec_materials.is_approve=1 AND get_sec_materials.is_recorded=0
+	   		AND get_sec_materials.is_apply=1
+	   	</select>
+	   	<update id="updateNoRecordGetSec" parameterType="int">
+	   		UPDATE get_sec_materials SET is_recorded=1 WHERE get_materials_id=#{0}
+	   	</update>
+	   	<select id="findNoRecordReturnSecMaterial" resultType="cn.itcast.ssm.po.GetSecDetail">
+	   		SELECT 
+	   			get_sec_detail.detail_id,
+	   			get_sec_detail.get_materials_id,
+	   			get_sec_detail.reshop_name,
+	   			get_sec_detail.sec_material_name,
+	   			get_sec_detail.sec_material_no,
+	   			get_sec_detail.type,
+	   			get_sec_detail.num,
+	   			get_sec_detail.unit,
+	   			get_sec_detail.returner,
+	   			get_sec_detail.receiver,
+	   			get_sec_detail.time,
+	   			get_sec_detail.remark
+	   		FROM get_sec_detail
+	   		WHERE get_sec_detail.is_recorded=0
+	   		AND get_sec_detail.is_return=1
+	   	</select>
+	   	<update id="updateNoRecordReturnSec" parameterType="int">
+	   		UPDATE get_sec_detail SET is_recorded = 1 WHERE detail_id=#{0}
+	   	</update>
+	   	<select id="findGetSecDetailById" parameterType="int" resultType="cn.itcast.ssm.po.GetSecDetail">
+	   		SELECT * FROM get_sec_detail WHERE get_materials_id=#{0}
+	   	</select>
+	</mapper>

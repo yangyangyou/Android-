@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.itcast.ssm.mapper.MessMapper">
+
+<select id="getdailyCheck" resultType="cn.itcast.ssm.po.DailyCheck_2">
+   SELECT * FROM daily_check WHERE is_mold=#{is_mold} and is_rijian='1'and state='1'
+</select>
+<select id="getMyDailyCheck" resultType="cn.itcast.ssm.po.DailyCheck_2" parameterType="string">
+   SELECT * FROM daily_check WHERE shop_name=#{0} and is_rijian='1'and state='1'
+</select>
+<update id="updateState" parameterType="cn.itcast.ssm.po.Message">
+    UPDATE daily_check SET state='0',is_repair='1',repair_person=#{0},repair_date=#{1} WHERE batch_no=#{2} and asset_no=#{3}
+</update>
+
+<update id="updateMess" parameterType="cn.itcast.ssm.po.Message">
+    UPDATE daily_check SET is_latest=0
+    WHERE batch_no=#{0}and asset_no=#{1}and shop_name=#{2}and process_name=#{3} and operator=#{4} and send_person=#{5}
+</update>
+<select id="getMess" resultType="cn.itcast.ssm.po.Message">
+   SELECT batch_no,asset_no,shop_name,process_name,operator,error_content,send_person,error_date,is_latest FROM daily_check 
+   WHERE is_latest='1' AND check_id in (select min(check_id)from daily_check WHERE is_latest='1')
+</select>
+<update id="updateAssetState" parameterType="cn.itcast.ssm.po.Message">
+    UPDATE work_card AS b INNER JOIN track_card AS a ON  a.card_id=b.card_id
+    SET asset_state=asset_state+1 WHERE a.batch_no=#{0} and b.asset=#{1} and b.shop_name=#{2} and b.process_name=#{3} and b.operator=#{4}
+</update>
+
+<update id="updateMoldState" parameterType="cn.itcast.ssm.po.Message">
+    UPDATE work_card AS b INNER JOIN track_card AS a ON  a.card_id=b.card_id
+    SET mold_state=mold_state+1 WHERE a.batch_no=#{0} and b.asset=#{1} and b.shop_name=#{2} and b.process_name=#{3} and b.operator=#{4}
+</update>
+
+<!-- 获取所有维修员 -->
+<select id="findMujuWeiXiu" resultType="string">
+    SELECT number FROM person WHERE position='保钳班长'
+</select>
+<select id="findShebeiWeiXiu" resultType="string">
+    SELECT number FROM person WHERE position='电工'
+</select>
+</mapper>

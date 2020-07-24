@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.CheckNowHistoryMapper">
+
+ <!-- <select id="findChecklist"  resultType="cn.itcast.ssm.po.Checklist">
+	 select a.material_no,a.batch_no,a.shop_name,b.process_name,c.asset_name,b.asset,b.operator from task AS b 
+	 INNER JOIN shop_plan AS a ON a.plan_id=b.plan_id
+     INNER JOIN asset AS c ON b.asset=c.asset_no
+     where  a.material_no=#{0}and a.batch_no=#{1}and a.shop_name=#{2}
+</select>
+<select id="findCommon" resultType="cn.itcast.ssm.po.Asset">
+     select asset_name,asset_no,is_common from asset where asset_name=#{asset_name}
+</select> 
+
+<select id="findContent" resultType="cn.itcast.ssm.po.Content">
+      select asset_name,asset_no,result from test2
+      where asset_name=#{0} or asset_no=#{1}
+</select> 
+
+<select id="findWhatRfid" parameterType="string" resultType="string">
+    SELECT phynum FROM rfidlabel WHERE rfid = #{rfid}
+</select> -->
+   <select id="findGongxu" parameterType="cn.itcast.ssm.po.Check" resultType="string">
+       SELECT DISTINCT task.process_name FROM task,shop_plan 
+       WHERE shop_plan.plan_id=task.plan_id 
+       AND shop_plan.shop_name=#{shop_name}
+       AND shop_plan.batch_no=#{batch_no}
+   </select>
+   
+   <select id="findSheBei" parameterType="cn.itcast.ssm.po.Check" resultType="string">
+       SELECT DISTINCT asset.asset_name FROM task,shop_plan,asset 
+       WHERE shop_plan.plan_id=task.plan_id 
+       AND shop_plan.shop_name=#{shop_name}
+       AND shop_plan.batch_no=#{batch_no}
+       AND task.process_name=#{process_name}
+       AND asset.asset_no = task.asset
+   </select>
+   
+   <select id="findWorker" parameterType="cn.itcast.ssm.po.Check" resultType="string">
+       SELECT task.operator FROM task,shop_plan,asset 
+       WHERE shop_plan.plan_id=task.plan_id 
+       AND shop_plan.shop_name=#{shop_name}
+       AND shop_plan.batch_no=#{batch_no}
+       AND task.process_name=#{process_name}
+       AND asset.asset_name=#{asset}
+       AND asset.asset_no = task.asset
+   </select>
+   
+   <select id="findCheck" parameterType="cn.itcast.ssm.po.Check" resultType="string">
+       SELECT check_record.time_1 FROM check_record,daily_check
+       WHERE daily_check.check_id = check_record.check_id
+       AND daily_check.shop_name=#{shop_name}
+       AND daily_check.batch_no=#{batch_no}
+       AND daily_check.process_name=#{process_name}
+       AND daily_check.asset_name=#{asset}
+       AND daily_check.operator=#{operator}
+   </select>
+   <select id="findCheckMuch" parameterType="cn.itcast.ssm.po.Check" resultType="cn.itcast.ssm.po.CheckRecord">
+       SELECT * FROM check_record,daily_check
+       WHERE daily_check.check_id = check_record.check_id
+       AND daily_check.shop_name=#{shop_name}
+       AND daily_check.batch_no=#{batch_no}
+       AND daily_check.process_name=#{process_name}
+       AND daily_check.asset_name=#{asset}
+       AND daily_check.operator=#{operator}
+   </select>
+   <select id="findCheckOne" parameterType="int" resultType="cn.itcast.ssm.po.CheckRecord">
+       SELECT * FROM check_record WHERE record_id=#{record_id}
+   </select>
+  </mapper>

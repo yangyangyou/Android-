@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.TvFindMapper">
+	
+	<resultMap type="cn.itcast.ssm.po.ShopPlan" id="shopPlan">
+		<id column="plan_id" property="plan_id"/>
+		<result column="batch_no" property="batch_no"/>
+		<result column="plan_no" property="plan_no"/>
+		<result column="client_material_no" property="client_material_no"/>
+		<result column="material_no" property="material_no"/>
+		<result column="product_spec" property="product_spec"/>
+		<result column="material_name" property="material_name"/>
+		<result column="plan_num" property="plan_num"/>
+		<result column="plan_date" property="plan_date"/>
+		<result column="order_date" property="deliver_time"/>
+		<association property="trackCard" javaType="cn.itcast.ssm.po.TrackCard">
+			<id column="card_id" property="card_id"/>
+			<result column="batch_no" property="batch_no"/>
+			<collection property="work_cards" ofType="cn.itcast.ssm.po.WorkCardNew">
+				<id column="track_id" property="track_id"/>
+				<result column="card_id" property="card_id"/>
+				<result column="hege_num" property="hege_num"/>
+			</collection>
+		</association>
+	</resultMap>
+	
+	<resultMap type="cn.itcast.ssm.po.ProductionPlan" id="productionPlan">
+	    <id column="plan_id" property="plan_id"/>
+	    <result column="client" property="client"/>
+	    <result column="plan_no" property="plan_no"/>
+	    <result column="order_date" property="deliver_time"/>
+		<result column="client_material_no" property="client_material_no"/>
+		<result column="product_spec" property="product_spec"/>
+		<result column="material_no" property="material_no"/>
+		<result column="plan_num" property="plan_num"/>
+		<result column="product_name" property="product_name"/>
+		<result column="sort" property="sort"/>
+		<result column="is_product" property="is_product"/>
+		<result column="make_time" property="make_time"/>
+		<collection property="production_records" ofType="cn.itcast.ssm.po.ProductRecord">
+			<id column="record_id" property="recordId"/>
+			<result column="product_num" property="productNum"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="cn.itcast.ssm.po.ProductionPlan" id="productionPlanHegelv">
+	    <id column="plan_id" property="plan_id"/>
+	    <result column="client" property="client"/>
+	    <result column="plan_no" property="plan_no"/>
+	    <result column="order_date" property="deliver_time"/>
+		<result column="client_material_no" property="client_material_no"/>
+		<result column="product_spec" property="product_spec"/>
+		<result column="material_no" property="material_no"/>
+		<result column="plan_num" property="plan_num"/>
+		<result column="product_name" property="product_name"/>
+		<result column="sort" property="sort"/>
+		<result column="is_product" property="is_product"/>
+		<result column="make_time" property="make_time"/>
+		<result column="cipin_num" property="cipin_num"/>
+		<result column="gongfei_num" property="gongfei_num"/>
+		<result column="liaofei_num" property="liaofei_num"/>
+		<result column="finish_num" property="finish_num"/>
+	</resultMap>
+	
+	<!-- <resultMap type="cn.itcast.ssm.po.ProductionPlanVo" id="productionPlanShop">
+		<id column="finish_num" property="finish_num"/>
+		<collection property="production_plans" ofType="cn.itcast.ssm.po.ProductionPlan">
+			<id column="plan_id" property="plan_id"/>
+		    <result column="client" property="client"/>
+		    <result column="plan_no" property="plan_no"/>
+			<result column="client_material_no" property="client_material_no"/>
+			<result column="product_spec" property="product_spec"/>
+			<result column="material_no" property="material_no"/>
+			<result column="plan_num" property="plan_num"/>
+			<result column="product_name" property="product_name"/>
+			<result column="sort" property="sort"/>
+			<result column="is_product" property="is_product"/>
+			<result column="make_time" property="make_time"/>
+			<collection property="shop_deliverys" ofType="cn.itcast.ssm.po.ShopDelivery">
+				<id column="shop_delivery_id" property="shop_delivery_id"/>
+				<result column="send_num" property="send_num"/>
+				<result column="send_date" property="send_date"/>
+				<result column="priority" property="priority"/>
+			</collection>
+		</collection>
+	</resultMap> -->
+	<resultMap type="cn.itcast.ssm.po.ProductionPlan" id="productionPlanShop">
+	    <id column="plan_id" property="plan_id"/>
+	    <result column="client" property="client"/>
+	    <result column="plan_no" property="plan_no"/>
+		<result column="client_material_no" property="client_material_no"/>
+		<result column="product_spec" property="product_spec"/>
+		<result column="material_no" property="material_no"/>
+		<result column="plan_num" property="plan_num"/>
+		<result column="product_name" property="product_name"/>
+		<result column="sort" property="sort"/>
+		<result column="is_product" property="is_product"/>
+		<result column="make_time" property="make_time"/>
+		<collection property="shop_deliverys" ofType="cn.itcast.ssm.po.ShopDelivery">
+			<id column="shop_delivery_id" property="shop_delivery_id"/>
+			<result column="send_num" property="send_num"/>
+			<result column="send_date" property="send_date"/>
+			<result column="priority" property="priority"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="cn.itcast.ssm.po.FinishNum" id="finishNumMap">
+		<id column="all_plan_num" property="all_plan_num"/>
+		<result column="all_finish_num" property="all_finish_num"/>
+		<result column="chongya_num" property="chongya_num"/>
+		<result column="yibiao_num" property="yibiao_num"/>
+		<result column="hanjie_num" property="hanjie_num"/>
+		<result column="houdao_num" property="houdao_num"/>
+		<result column="chongya_plan_num" property="chongya_plan_num"/>
+		<result column="yibiao_plan_num" property="yibiao_plan_num"/>
+		<result column="hanjie_plan_num" property="hanjie_plan_num"/>
+		<result column="houdao_plan_num" property="houdao_plan_num"/>
+	</resultMap>
+	
+	<resultMap type="cn.itcast.ssm.po.PlanNum" id="planNumPlan">
+		<result column="cipin_num" property="cipin_num"/>
+		<result column="gongfei_num" property="gongfei_num"/>
+		<result column="liaofei_num" property="liaofei_num"/>
+	</resultMap>
+	
+	<resultMap type="cn.itcast.ssm.po.ShopTransition" id="sendNumMap">
+		<id column="transition_id" property="transitionId"/>
+		<result column="batch_no" property="batchNo"/>
+		<result column="qualified_num" property="qualifiedNum"/>
+		<result column="shop1" property="shop1"/>
+	</resultMap>
+	
+	<resultMap type="cn.itcast.ssm.po.HegelvNum" id="hegelvNum">
+		<id column="all_product_num" property="all_product_num"/>
+		<result column="all_gongfei_num" property="all_gongfei_num"/>
+		<result column="all_liaofei_num" property="all_liaofei_num"/>
+		<result column="chongya_transition_num" property="chongya_transition_num"/>
+		<result column="chongya_liaofei_num" property="chongya_liaofei_num"/>
+		<result column="chongya_gongfei_num" property="chongya_gongfei_num"/>
+		<result column="yibiao_transition_num" property="yibiao_transition_num"/>
+		<result column="yibiao_liaofei_num" property="yibiao_liaofei_num"/>
+		<result column="yibiao_gongfei_num" property="yibiao_gongfei_num"/>
+		<result column="hanjie_transition_num" property="hanjie_transition_num"/>
+		<result column="hanjie_gongfei_num" property="hanjie_gongfei_num"/>
+		<result column="hanjie_liaofei_num" property="hanjie_liaofei_num"/>
+		<result column="houdao_transition_num" property="houdao_transition_num"/>
+		<result column="houdao_gongfeifei_num" property="houdao_gongfei_num"/>
+		<result column="houdao_liaofei_num" property="houdao_liaofei_num"/>
+	</resultMap>
+	
+	<select id="findHegelvNum" parameterType="string" resultMap="hegelvNum">
+		SELECT
+			IFNULL((SELECT SUM(CAST(product_record.product_num AS SIGNED))
+			FROM production_plan LEFT JOIN product_record
+			ON production_plan.plan_no=product_record.plan_no
+			WHERE production_plan.make_time between #{0} and #{1}
+			AND production_plan.is_new=1),0) AS all_product_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM production_plan LEFT JOIN track_card 
+			ON track_card.plan_no=production_plan.plan_no
+			LEFT JOIN work_card 
+			ON work_card.card_id=track_card.card_id
+			LEFT JOIN cipin
+			ON cipin.track_id=work_card.track_id
+			WHERE production_plan.make_time between #{0} and #{1}
+			AND production_plan.is_new=1 AND cipin.cipin_type='工废'),0) AS all_gongfei_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM production_plan LEFT JOIN track_card 
+			ON track_card.plan_no=production_plan.plan_no
+			LEFT JOIN work_card 
+			ON work_card.card_id=track_card.card_id
+			LEFT JOIN cipin
+			ON cipin.track_id=work_card.track_id
+			WHERE production_plan.make_time between #{0} and #{1}
+			AND production_plan.is_new=1 AND cipin.cipin_type='料废'),0) AS all_liaofei_num,
+			IFNULL((SELECT SUM(CAST(shop_transition.qualified_num AS SIGNED))
+			FROM shop_plan LEFT JOIN shop_transition 
+			ON shop_plan.batch_no=shop_transition.batch_no AND shop_plan.shop_name=shop_transition.shop1
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='冲压工段'),0) AS chongya_transition_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='冲压工段' 
+			AND work_card.shop_name='冲压工段'
+			AND cipin.cipin_type='工废'),0) AS chongya_gongfei_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='冲压工段' 
+			AND work_card.shop_name='冲压工段'
+			AND cipin.cipin_type='料废'),0) AS chongya_liaofei_num,
+			IFNULL((SELECT SUM(CAST(shop_transition.qualified_num AS SIGNED))
+			FROM shop_plan LEFT JOIN shop_transition 
+			ON shop_plan.batch_no=shop_transition.batch_no AND shop_plan.shop_name=shop_transition.shop1
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='仪表工段'),0) AS yibiao_transition_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='仪表工段' 
+			AND work_card.shop_name='仪表工段'
+			AND cipin.cipin_type='工废'),0) AS yibiao_gongfei_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='仪表工段' 
+			AND work_card.shop_name='仪表工段'
+			AND cipin.cipin_type='料废'),0) AS yibiao_liaofei_num,
+			IFNULL((SELECT SUM(CAST(shop_transition.qualified_num AS SIGNED))
+			FROM shop_plan LEFT JOIN shop_transition 
+			ON shop_plan.batch_no=shop_transition.batch_no AND shop_plan.shop_name=shop_transition.shop1
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='后道工段'),0) AS houdao_transition_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='后道工段' 
+			AND work_card.shop_name='后道工段'
+			AND cipin.cipin_type='工废'),0) AS houdao_gongfei_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='后道工段' 
+			AND work_card.shop_name='后道工段'
+			AND cipin.cipin_type='料废'),0) AS houdao_liaofei_num,
+			IFNULL((SELECT SUM(CAST(shop_transition.qualified_num AS SIGNED))
+			FROM shop_plan LEFT JOIN shop_transition 
+			ON shop_plan.batch_no=shop_transition.batch_no AND shop_plan.shop_name=shop_transition.shop1
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='焊接工段'),0) AS hanjie_transition_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='焊接工段' 
+			AND work_card.shop_name='焊接工段'
+			AND cipin.cipin_type='工废'),0) AS hanjie_gongfei_num,
+			IFNULL((SELECT SUM(CAST(cipin.cipin_num AS SIGNED))
+			FROM shop_plan LEFT JOIN track_card ON shop_plan.batch_no=track_card.batch_no
+			LEFT JOIN work_card ON track_card.card_id=work_card.card_id
+			LEFT JOIN cipin ON cipin.track_id=work_card.track_id
+			WHERE shop_plan.plan_date between #{0} and #{1}
+			AND shop_plan.is_new=1 AND shop_plan.is_latest=1
+			AND shop_plan.shop_name='焊接工段' 
+			AND work_card.shop_name='焊接工段'
+			AND cipin.cipin_type='料废'),0) AS hanjie_liaofei_num
+	</select>
+	
+	<select id="findAllOrder" parameterType="string" resultMap="productionPlan">
+		SELECT 
+			production_plan.plan_id,
+			production_plan.client,
+			production_plan.order_date,
+			production_plan.client_material_no,
+			production_plan.material_no,
+			production_plan.product_name,
+			production_plan.plan_no,
+			production_plan.product_spec,
+			production_plan.plan_num,
+			production_plan.is_product,
+			production_plan.make_time,
+			product_record.product_num,
+			product_record.record_id
+		FROM 
+			production_plan LEFT JOIN product_record
+		ON production_plan.plan_no=product_record.plan_no
+		AND production_plan.client_material_no=product_record.client_material_no
+		AND production_plan.material_no=product_record.material_no
+		WHERE production_plan.make_time between #{0} and #{1}
+		AND production_plan.is_new=1
+		GROUP BY production_plan.plan_id,product_record.record_id
+		ORDER BY production_plan.make_time ASC
+	</select>
+	
+	<select id="findOrderHegelv" parameterType="string" resultMap="productionPlanHegelv">
+		SELECT 
+			production_plan.plan_id,
+			production_plan.client,
+			production_plan.order_date,
+			production_plan.client_material_no,
+			production_plan.material_no,
+			production_plan.product_name,
+			production_plan.plan_no,
+			production_plan.product_spec,
+			production_plan.plan_num,
+			production_plan.is_product,
+			production_plan.make_time,
+			SUM(CAST(product_record.product_num AS SIGNED)) AS finish_num
+		FROM 
+			production_plan 
+		LEFT JOIN product_record 
+		ON production_plan.plan_no=product_record.plan_no AND production_plan.client_material_no=product_record.client_material_no
+		AND production_plan.material_no=product_record.material_no
+		WHERE production_plan.make_time between #{0} and #{1}
+		AND production_plan.is_new=1 AND production_plan.is_latest=0
+		GROUP BY production_plan.plan_id
+		ORDER BY production_plan.make_time ASC
+	</select>
+	
+	<select id="findCipinNum" parameterType="string" resultMap="planNumPlan">
+		SELECT
+		IFNULL((SELECT SUM(CAST(cipin_num AS SIGNED))
+		FROM track_card LEFT JOIN work_card ON track_card.card_id = work_card.card_id
+		LEFT JOIN cipin ON cipin.track_id = work_card.track_id
+		WHERE track_card.plan_no =#{0} AND cipin.cipin_type='工废'),0) AS gongfei_num,
+		IFNULL((SELECT SUM(CAST(cipin_num AS SIGNED))
+		FROM track_card LEFT JOIN work_card ON track_card.card_id = work_card.card_id
+		LEFT JOIN cipin ON cipin.track_id = work_card.track_id
+		WHERE track_card.plan_no =#{0} AND cipin.cipin_type='料废'),0) AS liaofei_num
+	</select>
+	
+	<select id="findNoFinishOrder" parameterType="string" resultMap="productionPlan">
+		SELECT 
+			production_plan.plan_id,
+			production_plan.client,
+			production_plan.order_date,
+			production_plan.client_material_no,
+			production_plan.material_no,
+			production_plan.product_name,
+			production_plan.plan_no,
+			production_plan.product_spec,
+			production_plan.plan_num,
+			production_plan.is_product,
+			production_plan.make_time,
+			product_record.product_num,
+			product_record.record_id
+		FROM 
+			production_plan LEFT JOIN product_record
+		ON production_plan.plan_no=product_record.plan_no
+		AND production_plan.client_material_no=product_record.client_material_no
+		AND production_plan.material_no=product_record.material_no
+		WHERE production_plan.is_product = 0 
+		AND production_plan.make_time between #{0} and #{1}
+		AND production_plan.is_new=1
+		GROUP BY production_plan.plan_id,product_record.record_id
+		ORDER BY production_plan.make_time ASC
+	</select>
+	
+	<!-- 当前月份，工厂所有订单完成情况，按时间顺序列表，换屏显示 -->
+<select id="findProductionPlan" resultType="cn.itcast.ssm.po.ProductionPlan">
+     SELECT * FROM production_plan WHERE DATE_FORMAT(order_date,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m') order by order_date ASC
+</select>
+
+<!-- 所有月份，未完成订单的完成情况，按时间顺序列表，换屏显示 -->
+<select id="findProductionPlan2" resultType="cn.itcast.ssm.po.ProductionPlan2">
+    SELECT * FROM production_plan AS b 
+    INNER JOIN shop_delivery AS a ON a.plan_id=b.plan_id
+    WHERE is_new='1' and is_product='0' order by order_date ASC
+</select>
+
+<!-- 以车间为统计单位，显示当前该车间所有未完成订单生产完成情况 -->
+<select id="findProductionPlan3" parameterType="string" resultMap="productionPlanShop">
+    SELECT  b.plan_id,
+			b.client,
+			b.client_material_no,
+			b.material_no,
+			b.product_name,
+			b.plan_no,
+			b.product_spec,
+			b.plan_num,
+			b.is_product,
+			b.make_time,
+			a.shop_delivery_id,
+			a.send_num,
+			a.send_date,
+			a.priority
+	FROM production_plan AS b 
+    LEFT JOIN shop_delivery AS a 
+    ON a.plan_id=b.plan_id AND a.shop_name = #{0} 
+   	WHERE b.sort LIKE #{1} AND is_new=1 AND is_product=0 
+    ORDER BY b.make_time ASC
+</select>
+
+<!-- <select id="findFinishNum" resultMap="finishNumMap">
+	SELECT
+	IFNULL((SELECT count(plan_id) 
+    FROM production_plan 
+    WHERE  production_plan.is_new=1 AND production_plan.is_product=1),0) AS all_finish_num,
+	IFNULL((SELECT count(plan_id) 
+    FROM production_plan 
+    WHERE production_plan.sort LIKE '%冲压工段%' AND production_plan.is_new=1 AND production_plan.is_product=1),0) AS chongya_num,
+    IFNULL((SELECT count(plan_id) 
+    FROM production_plan 
+    WHERE production_plan.sort LIKE '%仪表工段%' AND production_plan.is_new=1 AND production_plan.is_product=1),0) AS yibiao_num,
+    IFNULL((SELECT count(plan_id) 
+    FROM production_plan 
+    WHERE production_plan.sort LIKE '%焊接工段%' AND production_plan.is_new=1 AND production_plan.is_product=1),0) AS hanjie_num,
+    IFNULL((SELECT count(plan_id) 
+    FROM production_plan 
+    WHERE production_plan.sort LIKE '%后道工段%' AND production_plan.is_new=1 AND production_plan.is_product=1),0) AS houdao_num
+	</select> -->
+	
+	<select id="findFinishNum" parameterType="string" resultMap="finishNumMap">
+		SELECT
+		IFNULL((SELECT sum(CAST(production_plan.plan_num AS SIGNED))
+	    FROM production_plan
+	    WHERE  production_plan.is_new=1
+	    AND production_plan.make_time between #{0} and #{1}),0) AS all_plan_num,
+	    IFNULL((SELECT sum(CAST(product_record.product_num AS SIGNED))
+	    FROM production_plan LEFT JOIN product_record
+	    ON production_plan.plan_no = product_record.plan_no
+	    WHERE  production_plan.is_new=1
+	    AND production_plan.make_time between #{0} and #{1}),0) AS all_finish_num,
+		IFNULL((SELECT sum(CAST(shop_plan.plan_num as SIGNED))
+	    FROM shop_plan
+	    WHERE shop_plan.shop_name='冲压工段' AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS chongya_plan_num,
+	    IFNULL((SELECT sum(CAST(shop_transition.qualified_num AS SIGNED))
+	    FROM shop_plan LEFT JOIN shop_transition ON shop_plan.batch_no = shop_transition.batch_no
+	    WHERE shop_plan.shop_name='冲压工段' 
+	    AND shop_transition.shop1='冲压工段'
+	    AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS chongya_num,
+	    IFNULL((SELECT sum(CAST(shop_plan.plan_num as SIGNED))
+	    FROM shop_plan
+	    WHERE shop_plan.shop_name='仪表工段' AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS yibiao_plan_num,
+	    IFNULL((SELECT sum(CAST(shop_transition.qualified_num AS SIGNED))
+	    FROM shop_plan LEFT JOIN shop_transition ON shop_plan.batch_no = shop_transition.batch_no
+	    WHERE shop_plan.shop_name='仪表工段' 
+	    AND shop_transition.shop1='仪表工段'
+	    AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS yibiao_num,
+	    IFNULL((SELECT sum(CAST(shop_plan.plan_num as SIGNED))
+	    FROM shop_plan
+	    WHERE shop_plan.shop_name='焊接工段' AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS hanjie_plan_num,
+	    IFNULL((SELECT sum(CAST(shop_transition.qualified_num AS SIGNED))
+	    FROM shop_plan LEFT JOIN shop_transition ON shop_plan.batch_no = shop_transition.batch_no
+	    WHERE shop_plan.shop_name='焊接工段' 
+	    AND shop_transition.shop1='焊接工段'
+	    AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS hanjie_num,
+	    IFNULL((SELECT sum(CAST(shop_plan.plan_num as SIGNED))
+	    FROM shop_plan
+	    WHERE shop_plan.shop_name='后道工段' AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS houdao_plan_num,
+	    IFNULL((SELECT sum(CAST(shop_transition.qualified_num AS SIGNED))
+	    FROM shop_plan LEFT JOIN shop_transition ON shop_plan.batch_no = shop_transition.batch_no
+	    WHERE shop_plan.shop_name='后道工段' 
+	    AND shop_transition.shop1='后道工段'
+	    AND shop_plan.is_new=1 
+	    AND shop_plan.is_latest=1 
+	    AND shop_plan.plan_date between #{0} and #{1}),0) AS houdao_num
+	</select>
+
+	<select id="findOneShopBatch" parameterType="string" resultMap="shopPlan">
+		SELECT
+			shop_plan.plan_id,
+			shop_plan.batch_no,
+			shop_plan.plan_no,
+			shop_plan.client_material_no,
+			shop_plan.material_no,
+			shop_plan.material_name,
+			shop_plan.product_spec,
+			shop_plan.plan_num,
+			shop_plan.plan_date,
+			production_plan.plan_id,
+			shop_delivery.plan_finish_date AS order_date
+		FROM shop_plan INNER JOIN production_plan ON shop_plan.plan_no = production_plan.plan_no
+		INNER JOIN shop_delivery ON shop_delivery.plan_id = production_plan.plan_id
+		WHERE
+			shop_plan.shop_name = #{0}
+		AND shop_plan.plan_date between #{1} and #{2}
+		AND production_plan.is_new = 1
+		AND shop_plan.is_new = 1
+		AND shop_plan.is_latest = 1
+		GROUP BY shop_plan.plan_id
+	</select>
+	
+	<select id="findTransitionNum" parameterType="string" resultMap="sendNumMap">
+		SELECT
+			transition_id,
+			batch_no,
+			SUM(qualified_num) as qualified_num
+		FROM
+			shop_transition
+		WHERE
+			batch_no=#{0} 
+		AND shop1=#{1}
+	</select>
+</mapper>

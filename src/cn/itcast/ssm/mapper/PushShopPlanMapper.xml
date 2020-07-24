@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="cn.itcast.ssm.mapper.PushShopPlanMapper">
+	<select id="findNewestShopPlan" resultType="int">
+	        SELECT plan_id FROM shop_plan WHERE is_latest=1
+	</select>
+	
+	<update id="updateNewestShopPlan" parameterType="int">
+	        UPDATE shop_plan SET is_latest=0 WHERE plan_id=#{plan_id}
+	</update>
+	    
+	    <resultMap type="cn.itcast.ssm.po.ShopPlan" id="ShopPlanDetails">
+	        <id column="plan_id" property="plan_id"/>
+	        <result column="material_no" property="material_no"/>
+	        <result column="batch_no" property="batch_no"/>
+			<result column="shop_name" property="shop_name"/>
+			<result column="plan_no" property="plan_no"/>
+			<result column="client_material_no" property="client_material_no"/>
+			<result column="plan_num" property="plan_num"/>
+			<collection property="tasks" ofType="cn.itcast.ssm.po.Task">
+			    <id column="task_id" property="taskId"/>
+			    <result column="process_name" property="processName"/>
+				<result column="asset" property="asset"/>
+				<result column="operator" property="operator"/>
+				<result column="mold" property="mold"/>
+			</collection>
+	    </resultMap>
+	    
+	  <select id="findShopPlanAndProcess" parameterType="int" resultMap="ShopPlanDetails">
+	        SELECT
+               plan_no,batch_no,client_material_no,material_no,plan_num,shop_name,
+               process_name,asset,operator,mold,task_id
+            FROM
+               task,shop_plan
+            WHERE
+               task.plan_id=shop_plan.plan_id 
+            AND
+               shop_plan.plan_id=#{plan_id}
+	  </select>
+	  
+	  <select id="findGongDuanZhang" parameterType="cn.itcast.ssm.po.DepartmentVo" resultType="string">
+	        SELECT number FROM person WHERE position='工段长'
+	        <foreach collection="department" item="department" open=" AND (" close=")" separator="OR">
+            	department=#{department}
+        	</foreach>
+	  </select>
+	  <select id="findFahuoAndBafahuoyoqian" resultType="string">
+	  		SELECT number FROM person WHERE position='发货员' OR position='保钳班长'
+	  </select>
+	  <select id="findCangKuGM" resultType="string">
+	  		SELECT number FROM person WHERE position='仓库管理员'
+	  </select>
+  </mapper>

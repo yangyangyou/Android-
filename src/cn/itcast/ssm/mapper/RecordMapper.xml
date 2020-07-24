@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.itcast.ssm.mapper.RecordMapper">
+  <resultMap id="BaseRecordMap" type="cn.itcast.ssm.po.Task" >
+    <id column="task_id" property="taskId" jdbcType="INTEGER" />
+    <result column="plan_id" property="planId" jdbcType="INTEGER" />
+    <result column="process_name" property="processName" jdbcType="VARCHAR" />
+    <result column="asset" property="asset" jdbcType="VARCHAR" />
+    <result column="operator" property="operator" jdbcType="VARCHAR" />
+    <result column="mold" property="mold" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="BaseResultMap" type="cn.itcast.ssm.po.WorkCard" >
+    <id column="track_id" property="trackId" jdbcType="INTEGER" />
+    <result column="card_id" property="cardId" jdbcType="INTEGER" />
+    <result column="shop_name" property="shopName" jdbcType="VARCHAR" />
+    <result column="process_name" property="processName" jdbcType="VARCHAR" />
+    <result column="operator" property="operator" jdbcType="VARCHAR" />
+    <result column="asset" property="asset" jdbcType="VARCHAR" />
+    <result column="asset_state" property="assetState" jdbcType="VARCHAR" />
+    <result column="mold" property="mold" jdbcType="VARCHAR" />
+    <result column="mold_state" property="moldState" jdbcType="VARCHAR" />
+    <result column="total_num" property="totalNum" jdbcType="VARCHAR" />
+    <result column="hege_num" property="hegeNum" jdbcType="VARCHAR" />
+    <result column="total_cipin_num" property="totalCipinNum" jdbcType="VARCHAR" />
+    <result column="produce_date" property="produceDate" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="BaseResultMap1" type="cn.itcast.ssm.po.Cipin" >
+    <id column="cipin_id" property="cipinId" jdbcType="INTEGER" />
+    <result column="track_id" property="trackId" jdbcType="INTEGER" />
+    <result column="cipin_type" property="cipinType" jdbcType="VARCHAR" />
+    <result column="cipin_species" property="cipinSpecies" jdbcType="VARCHAR" />
+    <result column="cipin_num" property="cipinNum" jdbcType="VARCHAR" />
+  </resultMap>
+<insert id="insertRecord" parameterType="cn.itcast.ssm.po.WorkCard">
+INSERT INTO `work_card`(card_id, shop_name, process_name, operator, return_num, gf_num,  
+	cipin_num, produce_date,  disqualified_state) 
+	VALUES (#{0},#{1},#{2},#{3},#{4},#{5},#{6},#{7},#{8})
+</insert>
+<insert id="insertTrack" keyColumn="track_id" keyProperty="trackId" useGeneratedKeys="true">
+INSERT into work_card(card_id, shop_name, process_name, operator, asset, asset_state, mold, mold_state, total_num, produce_date, hege_num,total_cipin_num,price) 
+VALUES( #{cardId},#{shopName},#{processName},#{operator},#{asset},#{assetState},#{mold},#{moldState},#{totalNum},#{produceDate},#{hegeNum},#{totalCipinNum},#{price}) 
+</insert>
+
+<update id="updateRecord">
+UPDATE work_card b,(select b.track_id 
+from work_card AS b INNER JOIN track_card AS a ON a.card_id=b.card_id
+where  a.material_no=#{material_no} and a.batch_no=#{batch_no} and b.shop_name=#{shopName} 
+and b.process_name =#{processName} and b.operator =#{operator}
+ORDER BY track_id DESC LIMIT 1)y
+ set b.asset_state=#{assetState}, b.mold_state=#{moldState}, b.total_num=#{totalNum}, b.hege_num=#{hegeNum}, b.total_cipin_num=#{totalCipinNum} 
+WHERE y.track_id=b.track_id 
+</update>
+
+<update id="updateCipin">
+UPDATE cipin c,(select b.track_id 
+from work_card as b where b.shop_name=#{0} and b.process_name =#{1} and b.operator =#{2}
+ORDER BY track_id DESC LIMIT 1)t
+set c.cipin_num=#{4}
+WHERE c.track_id = t.track_id and c.cipin_species=#{3}
+</update>
+
+<select id="getCardID" resultType="int">
+SELECT card_id FROM track_card as a WHERE a.material_no =#{0} and a.batch_no =#{1}
+</select>
+
+<insert id="insertCipin" parameterType="cn.itcast.ssm.po.Cipin">
+INSERT into cipin(track_id,cipin_type,cipin_species, cipin_num) VALUES (#{track_id},#{cipin_type},#{cipin_species},#{cipin_num})
+</insert>
+
+<select id="findAsset" resultMap="BaseRecordMap">
+select b.asset, b.mold from task AS b INNER JOIN shop_plan AS a ON a.plan_id=b.plan_id
+     where  a.material_no=#{0} and a.batch_no=#{1} and a.shop_name=#{2} and b.process_name=#{3} 
+</select>
+
+<select id="findRecord" resultMap="BaseResultMap">
+select b.track_id, b.asset_state, b.mold_state, b.hege_num, b.total_cipin_num from work_card AS b INNER JOIN track_card AS a ON a.card_id=b.card_id
+     where a.material_no=#{0} and a.batch_no=#{1} and b.shop_name=#{2} and b.process_name=#{3} and b.operator=#{4}
+	ORDER BY track_id DESC LIMIT 1
+</select>
+
+<select id="findCipin"  resultMap="BaseResultMap1">
+select b.cipin_species, b.cipin_num from cipin as b,(select b.track_id 
+from work_card as b where b.shop_name=#{0} and b.process_name =#{1} and b.operator =#{2}
+ORDER BY track_id DESC LIMIT 1)y where y.track_id = b.track_id 
+</select>
+
+<select id="findName" resultType="String">
+select b.operator from task AS b INNER JOIN shop_plan AS a ON a.plan_id=b.plan_id
+     where  a.material_no=#{0} and a.batch_no=#{1} and a.shop_name=#{2} and b.process_name=#{3}
+</select>
+
+<select id="findPrice" resultType="string">
+SELECT price FROM shop_process WHERE material_no =#{material_no} and shop=#{shop_name} and process=#{process}
+</select>
+
+<select id="findProcess" resultMap="BaseRecordMap">
+select DISTINCT b.process_name from task AS b INNER JOIN shop_plan AS a ON a.plan_id=b.plan_id
+     where  a.material_no=#{0}and a.batch_no=#{1}and a.shop_name=#{2} and a.is_new='1'
+</select>
+
+<select id="findOperator" resultMap="BaseRecordMap">
+select b.process_name, b.operator from task AS b INNER JOIN shop_plan AS a ON a.plan_id=b.plan_id
+     where  a.material_no=#{0}and a.batch_no=#{1}and a.shop_name=#{2} and a.is_new='1'
+</select>
+
+<select id="findWhatRfid" parameterType="string" resultType="string">
+    SELECT phynum FROM rfidlabel WHERE rfid = #{0}
+</select>
+
+<select id="findProcessByBatch" resultMap="BaseRecordMap">
+select DISTINCT b.process_name from task AS b INNER JOIN shop_plan AS a ON a.plan_id=b.plan_id
+     where a.batch_no=#{0} and a.shop_name=#{1}
+</select>
+</mapper>

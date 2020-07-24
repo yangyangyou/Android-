@@ -1,0 +1,32 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+<!-- 商品管理 的service -->
+<bean id="checkService" class="cn.itcast.ssm.service.impl.CheckServiceImpl"/>
+<bean id="planService" class="cn.itcast.ssm.service.impl.PlanServiceImpl"/>
+<bean id="checklistService" class="cn.itcast.ssm.service.impl.ChecklistServiceImpl"/>
+<bean id="getBanChengService" class="cn.itcast.ssm.service.impl.GetBanChengServiceImpl"/>	
+<bean id="moldGetBackService" class="cn.itcast.ssm.service.impl.MoldGetBackServiceImpl"></bean>
+<bean id="checkNowHistoryService" class="cn.itcast.ssm.service.impl.CheckNowHistoryServiceImpl"/>
+<bean id="materialService" class="cn.itcast.ssm.service.impl.MaterialServiceImpl"/>
+<bean id="transitionService" class="cn.itcast.ssm.service.impl.TransitionServiceImpl"/>
+<bean id="recordService" class="cn.itcast.ssm.service.impl.RecordServiceImpl"></bean>
+<bean id="messService" class="cn.itcast.ssm.service.impl.MessServiceImpl"/>
+<bean id="pushShopPlanService" class="cn.itcast.ssm.service.impl.PushShopPlanServiceImpl"></bean>
+<bean id="shopPlanService" class="cn.itcast.ssm.service.impl.ShopPlanServiceImpl"/>
+<bean id="fuliaoService" class="cn.itcast.ssm.service.impl.FuliaoServiceImpl"/>
+<bean id="tvFindService" class="cn.itcast.ssm.service.impl.TvFindServiceImpl"/>
+<bean id="httpConnectionManager" class="cn.itcast.ssm.controller.HttpConnectionManager"/>
+<bean id="bindPortAccpector" class="cn.itcast.ssm.method.BindPortAccpector" scope="singleton" init-method="init"/> 
+</beans>

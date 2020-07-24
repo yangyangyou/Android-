@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.itcast.ssm.mapper.TransitionMapper">
+
+<!--查询生产计划表-->
+<select id="findProduction_plan" resultType="cn.itcast.ssm.po.ProductionPlan">
+   SELECT * FROM  production_plan order by plan_id DESC 
+</select>
+
+<select id="findShop_name" resultType="cn.itcast.ssm.po.ShopDelivery">
+	SELECT b.shop_name,b.priority FROM shop_delivery AS b 
+	INNER JOIN production_plan AS a ON a.plan_id=b.plan_id
+	WHERE a.plan_no=#{planNo} and a.client_material_no=#{clientMaterialNo} and a.material_no=#{materialNo} and is_new='1'
+	order by shop_delivery_id DESC limit 1
+</select>
+
+<select id="findPosition" resultType="String">
+      SELECT position FROM person WHERE person_name=#{username}
+</select>
+
+<select id="findPerson_name" resultType="String">
+      SELECT person_name FROM person WHERE number=#{number}
+</select>
+
+<!--查询合格品,不合格总数量-->
+<select id="findQualifed_num"  resultType="String">
+  SELECT SUM(qualified_num + unqualified_num) as num FROM shop_transition 
+  WHERE batch_no=#{1} and shop1=#{0} and priority=#{2}   
+</select>
+
+<!--若没有返工记录，查询剩余总量 -->	
+<select id="findPlan_num"  resultType="String">
+      SELECT a.plan_num-b.num as total FROM shop_plan a,
+      (SELECT SUM(qualified_num + unqualified_num) as num FROM shop_transition 
+      WHERE batch_no=#{1} and shop1=#{0} and priority=#{2})b
+      WHERE a.shop_name=#{0} and a.batch_no=#{1} and a.is_new='1'
+</select>
+
+<!-- 查询返工数量 -->
+<select id="findPlan_num4"  resultType="String">
+      SELECT SUM(unqualified_num) as num2 FROM shop_transition 
+      WHERE batch_no=#{1} and shop2=#{0} and priority=#{2} and qualified_num=""
+</select>
+
+ <!--查询计划数量-->
+<select id="findPlan_num2"  resultType="String">
+      SELECT plan_num FROM shop_plan WHERE shop_name=#{0} and batch_no=#{1} and is_new='1'
+</select>
+
+<!-- 有返工记录，查询剩余总量 -->
+<select id="findPlan_num3"  resultType="String">
+      SELECT a.plan_num+c.num2-b.num as total FROM shop_plan a,
+      (SELECT SUM(qualified_num + unqualified_num) as num FROM shop_transition 
+      WHERE batch_no=#{1} and shop1=#{0} and priority=#{2}) b,
+      (SELECT SUM(unqualified_num) as num2 FROM shop_transition 
+       WHERE batch_no=#{1} and shop2=#{0} and priority=#{2} and qualified_num="")c
+      WHERE a.shop_name=#{0} and a.batch_no=#{1} and a.is_new='1'
+</select> 
+
+<select id="findClient_material_no"  resultType="cn.itcast.ssm.po.MaterialNo">
+      SELECT DISTINCT plan_no,client_material_no,material_no FROM shop_plan WHERE batch_no=#{batchNo} and is_new='1'
+</select>
+
+<!-- 原材料外协交接 -->
+<select id="findClient_material_no2"  resultType="cn.itcast.ssm.po.MaterialNo">
+      SELECT DISTINCT plan_no,client_material_no,material_no,material_name,product_spec FROM get_material WHERE batch_no=#{batchNo} and is_approval='1'
+</select>
+
+<select id="findWeight"  resultType="Float">
+      SELECT DISTINCT weight FROM products_bom WHERE material_no=#{materialNo}
+</select>
+
+<select id="findPhynum"  resultType="String">
+      SELECT phynum FROM rfidlabel WHERE rfid=#{rfid}
+</select>
+
+<select id="findDepartment"  resultType="String">
+      SELECT department FROM person WHERE person_name=#{username} 
+</select>
+
+<update id="updateDelivery_num">
+      UPDATE shop_delivery AS b INNER JOIN production_plan AS a ON a.plan_id=b.plan_id
+      SET b.send_num=(SELECT SUM(qualified_num) as num FROM shop_transition
+      WHERE plan_no=#{0} and material_no=#{1} and batch_no=#{2} and shop1=#{3} and priority=#{5}), b.send_date=#{4}
+      WHERE a.plan_no=#{0} and a.material_no=#{1} and b.shop_name=#{3} and b.priority=#{5} and a.is_new='1'
+</update>
+
+<update id="updateDelivery_num2">
+      UPDATE shop_delivery AS b INNER JOIN production_plan AS a ON a.plan_id=b.plan_id
+      SET b.send_num=(SELECT SUM(qualified_num) as num FROM shop_transition
+      WHERE plan_no=#{0} and batch_no=#{2} and shop1=#{3} and type='2'), b.send_date=#{4}
+      WHERE a.plan_no=#{0} and a.material_no=#{1} and b.shop_name=#{3} and a.is_new='1'
+</update>
+
+<update id="updateDelivery_num3">
+      UPDATE shop_delivery AS b INNER JOIN production_plan AS a ON a.plan_id=b.plan_id
+      SET b.send_num=(SELECT SUM(qualified_num) as num FROM shop_transition
+      WHERE plan_no=#{0} and batch_no=#{2} and shop1=#{3} and type='1'), b.send_date=#{4}
+      WHERE a.plan_no=#{0} and a.material_no=#{1} and b.shop_name=#{3} and a.is_new='1'
+</update>
+
+
+<insert id="insertTransition" parameterType="cn.itcast.ssm.po.ShopTransition">
+      INSERT INTO shop_transition(plan_no,client_material_no,material_no,batch_no,shop1,shop2,qualified_num,unqualified_num,tran_date,provider,acceptor,priority)
+      VALUES(#{0},#{1},#{2},#{3},#{4},#{5},#{6},#{7},#{8},#{9},#{10},#{11}) 
+</insert>
+
+<insert id="insertOutTransition" parameterType="cn.itcast.ssm.po.ShopTransition">
+       INSERT INTO shop_transition(plan_no,client_material_no,material_no,batch_no,shop1,shop2,provider,acceptor,tran_date,qualified_num,type)
+       VALUES(#{0},#{1},#{2},#{3},#{4},#{5},#{6},#{7},#{8},#{9},#{10}) 
+</insert>
+
+  </mapper>
